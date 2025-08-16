@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TE AMO</title>
+<style>
+html, body { 
+  margin:0; padding:0; height:100%; background:#000; overflow:hidden; font-family:sans-serif; 
+  user-select:none;
+}
+.sky { position:fixed; inset:0; pointer-events:none; }
+
+.drop {
+  position:absolute; 
+  top:-10vh; 
+  color:#ff69b4; 
+  font-size:clamp(1rem,2vw,1.5rem); 
+  white-space:nowrap;
+  text-shadow:
+      0 0 0.3rem rgba(255,105,180,0.8),
+      0 0.6vh 0.5vh rgba(255,105,180,0.6),
+      0 1.2vh 0.9vh rgba(255,105,180,0.4),
+      0 1.8vh 1.2vh rgba(255,105,180,0.2);
+  animation:fall linear infinite;
+}
+
+@keyframes fall {
+  0% { transform:translateY(-120%); opacity:1; }
+  100% { transform:translateY(110vh); opacity:0.8; }
+}
+
+.center {
+  position:absolute; top:50%; left:50%; transform:translate(-50%, -50%);
+  color:#ff69b4; 
+  font-size:clamp(2rem,8vw,4rem);
+  text-shadow:0 0 1vw #ff69b4, 0 0 2vw #ff1493;
+  pointer-events:none;
+  text-align:center;
+}
+
+.explosion {
+  position:absolute; 
+  color:#ff69b4; 
+  font-size:clamp(0.8rem,2vw,1.5rem); 
+  white-space:nowrap;
+  animation:explode 2.5s ease-out forwards;
+}
+
+@keyframes explode {
+  0%   { opacity:1; transform:translate(0,0) scale(1); }
+  100% { opacity:0; transform:translate(var(--dx), var(--dy)) scale(0.9); }
+}
+</style>
+</head>
+<body>
+<div class="sky" id="sky"></div>
+<div class="center">TE QUIERO MUCHO</div>
+
+<script>
+(function(){
+  const sky = document.getElementById('sky');
+
+  function rand(min,max){return Math.random()*(max-min)+min;}
+  
+  function createDrop(){
+    const span = document.createElement('span');
+    span.className='drop';
+    span.textContent='TE AMO';
+    span.style.left = rand(0,100)+'vw';
+    span.style.animationDuration = rand(4,7)+'s';
+    span.style.animationDelay = -rand(0,4)+'s';
+    return span;
+  }
+
+  function fillDrops(){
+    const area = window.innerWidth*window.innerHeight;
+    const count = Math.max(60, Math.min(250, Math.round(area/15000)));
+    for(let i=0;i<count;i++){ sky.appendChild(createDrop()); }
+  }
+  fillDrops();
+
+  window.addEventListener('resize', function(){
+    sky.innerHTML='';
+    fillDrops();
+  });
+
+  function createExplosion(xPercent,yPercent){
+    const heartPattern=[
+      "  **   **  ",
+      " *  * *  * ",
+      "*    *    *",
+      "*         *",
+      " *       * ",
+      "  *     *  ",
+      "   *   *   ",
+      "    * *    ",
+      "     *     "
+    ];
+    const heartWidth = heartPattern[0].length;
+    const heartHeight = heartPattern.length;
+    const scaleVW = 3;
+    const scaleVH = 4;
+
+    heartPattern.forEach((line,i)=>{
+      for(let j=0;j<line.length;j++){
+        if(line[j]==='*'){
+          const span = document.createElement('span');
+          span.className='explosion';
+          span.textContent='TE AMO';
+          span.style.left = `calc(${xPercent}vw + ${(j-heartWidth/2)*scaleVW}vw)`;
+          span.style.top = `calc(${yPercent}vh + ${(i-heartHeight/2)*scaleVH}vh)`;
+
+          const angle = Math.atan2(i-heartHeight/2,j-heartWidth/2);
+          const distance = 15 + Math.random()*15;
+          const dx = Math.cos(angle)*distance + 'vw';
+          const dy = Math.sin(angle)*distance + 'vh';
+          span.style.setProperty('--dx', dx);
+          span.style.setProperty('--dy', dy);
+
+          document.body.appendChild(span);
+          setTimeout(()=>span.remove(),2500);
+        }
+      }
+    });
+  }
+
+  document.addEventListener('click', function(e){
+    createExplosion(e.clientX/window.innerWidth*100, e.clientY/window.innerHeight*100);
+  });
+})();
+</script>
+</body>
+</html>
